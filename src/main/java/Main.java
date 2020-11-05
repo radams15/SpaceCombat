@@ -8,6 +8,5 @@ public class Main {
 
     public void init(String[] args){
         MainWindow window = new MainWindow();
-        window.run();
     }
 }
