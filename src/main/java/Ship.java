@@ -38,16 +38,11 @@ public class Ship {
     }
 
     void tick(){
-        /*if(speed[0] > 0) speed[0] -= drag;
-        if(speed[1] > 0) speed[1] -= drag;
-        if(speed[0] < 0) speed[0] += drag;
-        if(speed[1] < 0) speed[1] += drag;*/
-
         speed[0] /= 1.2;
         speed[1] /= 1.2;
 
-        speed[0] = Math.round(speed[0]*100)/100; // avoid small speeds that are not taken away, put to 2dp
-        speed[1] = Math.round(speed[1]*100)/100;
+        speed[0] = Math.round(speed[0]*100)/100.0f; // avoid small speeds that are not taken away, put to 2dp
+        speed[1] = Math.round(speed[1]*100)/100.0f;
 
         location[0] -= speed[0];
         location[1] += speed[1];
@@ -66,8 +61,6 @@ public class Ship {
 
         speed[0] += disp[0];
         speed[1] += disp[1];
-        /*location[0] -= disp[0];
-        location[1] += disp[1];*/
     }
 
     public void shoot(){
