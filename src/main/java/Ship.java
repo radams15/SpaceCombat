@@ -6,7 +6,6 @@ public class Ship {
     private int[] location = new int[] {0,0};
     private double[] speed = new double[] {0,0};
 
-    private final double drag = 1; // speed deduction per second
     private final double thruster_strength = 10; // N
     private final double craft_mass = 20; // KG
 
@@ -38,24 +37,17 @@ public class Ship {
         GL11.glEnd();
     }
 
-    double get_acceleration(double force, double mass){
-        return force / mass;
-    }
-
-    double[] get_displacement(double angle, double distance){
-        double[] disp = new double[2];
-
-        disp[0] = distance * Math.sin(Math.toRadians(angle))*10;
-        disp[1] = distance * Math.cos(Math.toRadians(angle))*10;
-
-        return disp;
-    }
-
     void tick(){
-        if(speed[0] > 0) speed[0] -= drag;
+        /*if(speed[0] > 0) speed[0] -= drag;
         if(speed[1] > 0) speed[1] -= drag;
         if(speed[0] < 0) speed[0] += drag;
-        if(speed[1] < 0) speed[1] += drag;
+        if(speed[1] < 0) speed[1] += drag;*/
+
+        speed[0] /= 1.2;
+        speed[1] /= 1.2;
+
+        speed[0] = Math.round(speed[0]*100)/100; // avoid small speeds that are not taken away, put to 2dp
+        speed[1] = Math.round(speed[1]*100)/100;
 
         location[0] -= speed[0];
         location[1] += speed[1];
@@ -68,16 +60,14 @@ public class Ship {
     }
 
     public void thrust(){
-        double acc = get_acceleration(thruster_strength, craft_mass);
+        double distance = Physics.get_acceleration(thruster_strength, craft_mass); // since we accelerate for 1 second, distance = acceleration*1
 
-        double distance = acc * 1 * 1;
+        double[] disp = Physics.get_displacement(angle, distance);
 
-        double[] disp = get_displacement(angle, distance);
-
-        /*speed[0] += disp[0];
-        speed[1] += disp[1];*/
-        location[0] -= disp[0];
-        location[1] += disp[1];
+        speed[0] += disp[0];
+        speed[1] += disp[1];
+        /*location[0] -= disp[0];
+        location[1] += disp[1];*/
     }
 
     public void shoot(){
