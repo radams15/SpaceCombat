@@ -1,59 +1,120 @@
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.*;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
+import org.lwjgl.system.*;
+
+import java.nio.*;
+
+import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 public class MainWindow {
+
+    private long window;
+
     Ship ship;
 
     public MainWindow(){
-        ship = new Ship(40, 50);
+        ship = new Ship(50, 60);
+        init();
         run();
     }
 
-    public void run(){
-        try {
-            Display.setDisplayMode(new DisplayMode(Constants.windowSize[0], Constants.windowSize[1]));
-            Display.create();
-        } catch (LWJGLException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+    public void init(){
+        GLFWErrorCallback.createPrint(System.err).set();
 
-        // init OpenGL
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glLoadIdentity();
-        GL11.glOrtho(0, Constants.windowSize[0], 0, Constants.windowSize[1], 1, -1);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        // Initialize GLFW. Most GLFW functions will not work before doing this.
+        if ( !glfwInit() )
+            throw new IllegalStateException("Unable to initialize GLFW");
 
-        do {
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-            loop();
-            Display.update();
-        }while (!Display.isCloseRequested());
+        // Configure GLFW
+        glfwDefaultWindowHints(); // optional, the current window hints are already the default
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
-        Display.destroy();
+        // Create the window
+        window = glfwCreateWindow(Constants.windowSize[0], Constants.windowSize[1], "Hello World!", NULL, NULL);
+        if ( window == NULL )
+            throw new RuntimeException("Failed to create the GLFW window");
+
+        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
+        glfwSetKeyCallback(window, this::keyCallback);
+
+        // Get the thread stack and push a new frame
+        try ( MemoryStack stack = stackPush() ) {
+            IntBuffer pWidth = stack.mallocInt(1); // int*
+            IntBuffer pHeight = stack.mallocInt(1); // int*
+
+            // Get the window size passed to glfwCreateWindow
+            glfwGetWindowSize(window, pWidth, pHeight);
+
+            // Get the resolution of the primary monitor
+            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+            // Center the window
+            glfwSetWindowPos(
+                    window,
+                    (vidmode.width() - pWidth.get(0)) / 2,
+                    (vidmode.height() - pHeight.get(0)) / 2
+            );
+        } // the stack frame is popped automatically
+
+        // Make the OpenGL context current
+        glfwMakeContextCurrent(window);
+        // Enable v-sync
+        glfwSwapInterval(1);
+
+        // Make the window visible
+        glfwShowWindow(window);
     }
 
-    private boolean overlap(int[] p1, int[] p2){
-        if ((p1[2] > p2[2] || p2[0] > p1[2]) || (p1[3] < p2[1] || p2[3] < p1[1])) {
-            return false;
+    public void run(){
+        GL.createCapabilities();
+
+        glMatrixMode(GL11.GL_PROJECTION); // view from the top
+        glLoadIdentity(); // load the identity matrix for transformation to start
+        glOrtho(0, Constants.windowSize[0], 0, Constants.windowSize[1], 1, -1);
+        // set the coordinate system so that the bottom left is [0,0] and the top right is [win length, win height]
+        glMatrixMode(GL11.GL_MODELVIEW); // view from the side
+
+        // Set the clear color
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set bg colour to black
+
+
+        while(!glfwWindowShouldClose(window)){ // run while window is not requested to close
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the display
+
+            loop(); // run our display code
+
+            glfwSwapBuffers(window); // push the altered data to the window
+            glfwPollEvents(); // check if keys pressed
         }
-        return true;
+
+        glfwFreeCallbacks(window); // clean up the callback and the window
+        glfwDestroyWindow(window);
+
+        // Terminate GLFW and free the error callback
+        glfwTerminate(); // end display
+        glfwSetErrorCallback(null).free(); // free another error calllback
+    }
+
+    private void keyCallback(long window, long key, long scancode, long action, long mods){
+        if(key == GLFW_KEY_W){
+            ship.thrust();
+        }else if(key == GLFW_KEY_D){
+            ship.decAngle(5);
+        }else if(key == GLFW_KEY_A){
+            ship.incAngle(5);
+        }else if(key == GLFW_KEY_SPACE){
+            ship.fire();
+        }
     }
 
     private void loop(){
-        if(Keyboard.isKeyDown(Keyboard.KEY_A)){
-            ship.incAngle(10);
-        }else if(Keyboard.isKeyDown(Keyboard.KEY_D)){
-            ship.decAngle(10);
-        }else if(Keyboard.isKeyDown(Keyboard.KEY_W)){
-            ship.thrust();
-        }else if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)){
-            ship.shoot();
-        }
-
         ship.tick();
-
         ship.draw();
     }
 }

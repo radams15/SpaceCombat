@@ -52,6 +52,9 @@ public class Ship {
 
         if(location[1] < 0) location[1] = 0;
         else if(location[1] > Constants.windowSize[1]) location[1] = Constants.windowSize[1];
+
+
+        System.out.printf("Speeds are: [%f, %f]\n", speed[0], speed[1]);
     }
 
     public void thrust(){
@@ -63,7 +66,7 @@ public class Ship {
         speed[1] += disp[1];
     }
 
-    public void shoot(){
+    public void fire(){
 
     }
 }
