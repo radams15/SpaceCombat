@@ -1,16 +1,18 @@
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
+
 public class Ship {
     private int angle = 0;
     private int[] size;
     private int[] location = new int[] {0,0};
     private double[] speed = new double[] {0,0};
 
-    private final double thruster_strength = 10; // N
-    private final double craft_mass = 20; // KG
+    ArrayList<Torpedo> torpedoes;
 
     public Ship(int width, int height){
         size = new int[] {width, height};
+        torpedoes = new ArrayList<>();
     }
 
     public void incAngle(int amount){
@@ -25,7 +27,7 @@ public class Ship {
     }
 
     public void draw(){
-        GL11.glColor3f(1.0f, 0.0f, 0.0f);
+        GL11.glColor3f(Constants.shipColour[0], Constants.shipColour[1], Constants.shipColour[2]);
 
         GL11.glLoadIdentity();
             GL11.glTranslated(location[0], location[1], 0);
@@ -53,12 +55,17 @@ public class Ship {
         if(location[1] < 0) location[1] = 0;
         else if(location[1] > Constants.windowSize[1]) location[1] = Constants.windowSize[1];
 
-
-        System.out.printf("Speeds are: [%f, %f]\n", speed[0], speed[1]);
+        for(Torpedo t : (ArrayList<Torpedo>) torpedoes.clone()){
+            t.tick();
+            if(!t.exists()){
+                torpedoes.remove(t);
+            }
+            t.draw();
+        }
     }
 
     public void thrust(){
-        double distance = Physics.get_acceleration(thruster_strength, craft_mass); // since we accelerate for 1 second, distance = acceleration*1
+        double distance = Physics.get_acceleration(Constants.thrusterStrength, Constants.craftMass); // since we accelerate for 1 second, distance = acceleration*1
 
         double[] disp = Physics.get_displacement(angle, distance);
 
@@ -66,7 +73,8 @@ public class Ship {
         speed[1] += disp[1];
     }
 
-    public void fire(){
-
+    public void fireTorpedo(){
+        Torpedo t = new Torpedo(location[0], location[1], angle);
+        torpedoes.add(t);
     }
 }

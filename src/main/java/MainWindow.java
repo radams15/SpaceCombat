@@ -1,4 +1,3 @@
-import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
@@ -64,8 +63,6 @@ public class MainWindow {
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
-        // Enable v-sync
-        glfwSwapInterval(1);
 
         // Make the window visible
         glfwShowWindow(window);
@@ -109,7 +106,7 @@ public class MainWindow {
         }else if(key == GLFW_KEY_A){
             ship.incAngle(5);
         }else if(key == GLFW_KEY_SPACE){
-            ship.fire();
+            ship.fireTorpedo();
         }
     }
 
