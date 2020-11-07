@@ -2,6 +2,7 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
+import java.io.IOException;
 import java.nio.*;
 
 import static org.lwjgl.glfw.Callbacks.*;
@@ -14,10 +15,20 @@ public class MainWindow {
 
     private long window;
 
-    Ship ship;
+    private State state;
+    private Ship ship;
+
+    private ServerConnection server;
 
     public MainWindow(){
-        ship = new Ship(50, 60);
+        state = new State();
+        ship = new Ship(state);
+        try {
+            server = new ServerConnection("localhost", 8000);
+        }catch (IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
         init();
         run();
     }
@@ -114,5 +125,7 @@ public class MainWindow {
     private void loop(){
         ship.tick();
         ship.draw();
+
+        server.sendState(state);
     }
 }

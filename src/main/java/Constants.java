@@ -1,5 +1,6 @@
 public class Constants {
     public static final int[] windowSize = new int[]{800, 600};
+    public static final int[] shipSize = new int[]{50, 60};
 
     public static final float torpedoSpeed = 0.8f;
 
