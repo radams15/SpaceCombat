@@ -23,11 +23,12 @@ public class MainWindow {
     }
 
     public void init(){
-        GLFWErrorCallback.createPrint(System.err).set();
+        GLFWErrorCallback.createPrint(System.err).set(); // print errors to System.err buffer
 
         // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if ( !glfwInit() )
+        if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
+        }
 
         // Configure GLFW
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
@@ -36,8 +37,9 @@ public class MainWindow {
 
         // Create the window
         window = glfwCreateWindow(Constants.windowSize[0], Constants.windowSize[1], "Hello World!", NULL, NULL);
-        if ( window == NULL )
+        if (window == NULL){
             throw new RuntimeException("Failed to create the GLFW window");
+        }
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(window, this::keyCallback);
@@ -77,7 +79,6 @@ public class MainWindow {
         // set the coordinate system so that the bottom left is [0,0] and the top right is [win length, win height]
         glMatrixMode(GL11.GL_MODELVIEW); // view from the side
 
-        // Set the clear color
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set bg colour to black
 
 
@@ -95,7 +96,7 @@ public class MainWindow {
 
         // Terminate GLFW and free the error callback
         glfwTerminate(); // end display
-        glfwSetErrorCallback(null).free(); // free another error calllback
+        glfwSetErrorCallback(null).free(); // free error calllback
     }
 
     private void keyCallback(long window, long key, long scancode, long action, long mods){

@@ -30,17 +30,18 @@ public class Ship {
         GL11.glColor3f(Constants.shipColour[0], Constants.shipColour[1], Constants.shipColour[2]);
 
         GL11.glLoadIdentity();
-            GL11.glTranslated(location[0], location[1], 0);
-            GL11.glRotated(angle, 0, 0, 1);
+            GL11.glTranslated(location[0], location[1], 0); // move to correct x and y coords
+            GL11.glRotated(angle, 0, 0, 1); // rotate to angle
+
             GL11.glBegin(GL11.GL_TRIANGLES);
-            GL11.glVertex2d(0, 0);
-            GL11.glVertex2d(size[0]/2d, size[1]);
-            GL11.glVertex2d(size[0], 0);
-        GL11.glEnd();
+                GL11.glVertex2d(0, 0);
+                GL11.glVertex2d(size[0]/2d, size[1]);
+                GL11.glVertex2d(size[0], 0);
+            GL11.glEnd();
     }
 
     void tick(){
-        speed[0] /= 1.2;
+        speed[0] /= 1.2; // drag of 120%
         speed[1] /= 1.2;
 
         speed[0] = Math.round(speed[0]*100)/100.0f; // avoid small speeds that are not taken away, put to 2dp

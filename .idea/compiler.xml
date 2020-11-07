@@ -6,8 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="SpaceCombat" />
+        <module name="SpaceCombat_Client" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="SpaceCombat" target="11" />
+    </bytecodeTargetLevel>
   </component>
 </project>
