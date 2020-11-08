@@ -4,6 +4,7 @@ import org.lwjgl.system.*;
 
 import java.io.IOException;
 import java.nio.*;
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -15,16 +16,16 @@ public class MainWindow {
 
     private long window;
 
-    private State state;
     private Ship ship;
+    private ArrayList<Torpedo> torpedoes = new ArrayList<>();
 
     private ServerConnection server;
 
     public MainWindow(){
-        state = new State();
-        ship = new Ship(state);
+        ship = new Ship();
         try {
             server = new ServerConnection("localhost", 8000);
+            server.start();
         }catch (IOException e){
             e.printStackTrace();
             System.exit(1);
@@ -118,14 +119,35 @@ public class MainWindow {
         }else if(key == GLFW_KEY_A){
             ship.incAngle(5);
         }else if(key == GLFW_KEY_SPACE){
-            ship.fireTorpedo();
+            fireTorpedo();
         }
+    }
+
+    private void fireTorpedo(){
+        Torpedo t = new Torpedo(ship.coords[0], ship.coords[1], ship.angle);
+        torpedoes.add(t);
     }
 
     private void loop(){
         ship.tick();
-        ship.draw();
+        for(Torpedo t : (ArrayList<Torpedo>) torpedoes.clone()){
+            t.tick();
+            if(!t.exists()){
+                torpedoes.remove(t);
+            }
+        }
 
-        server.sendState(state);
+        for(Torpedo t : server.getTorpedoes()){
+            t.draw();
+        }
+
+        for(Ship s : server.getShips()){
+            s.draw();
+        }
+
+        ArrayList<Ship> ships = new ArrayList<>();
+        ships.add(ship);
+
+        server.sendMessage(new Message(ships, torpedoes));
     }
 }
